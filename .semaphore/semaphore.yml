@@ -37,6 +37,16 @@ blocks:
         - name: ESLint
           commands:
             - npm run lint
+  - name: "\U0001F512 Security Scan"
+    task:
+      jobs:
+        - name: NPM Audit
+          commands:
+            - npm audit --production
+        - name: Dependency Check
+          commands:
+            - npm install -g snyk
+            - snyk test --severity-threshold=high || true
   - name: "\U0001F9EA Tests in Parallel"
     task:
       jobs:
@@ -52,13 +62,6 @@ blocks:
         - name: Request Tests
           commands:
             - TEST_GREP="req" npm run test
-  - name: "\U0001F9E9 Additional Testing"
-    task:
-      jobs:
-        - name: Benchmarks
-          commands:
-            - echo "Running custom benchmark"
-            - node benchmark/index.js
   - name: "\U0001F4DD Documentation"
     task:
       jobs:
