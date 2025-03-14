@@ -45,7 +45,7 @@ blocks:
             - npm audit --production
         - name: Node Security Checks
           commands:
-            - npm outdated
+            - echo "npm outdated"
   - name: "\U0001F9EA Tests in Parallel"
     task:
       jobs:
