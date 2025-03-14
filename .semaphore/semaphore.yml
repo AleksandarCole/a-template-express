@@ -7,37 +7,22 @@ agent:
   containers:
     - name: main
       image: 'node:18'
-      env_vars:
-        - name: NODE_ENV
-          value: test
-        - name: REDIS_URL
-          value: 'redis://redis:6379'
-        - name: DATABASE_URL
-          value: 'postgres://postgres:postgres@postgres:5432/app_test'
     - name: postgres
       image: 'postgres:15'
-      env_vars:
-        - name: POSTGRES_PASSWORD
-          value: postgres
-        - name: POSTGRES_DB
-          value: app_test
     - name: redis
       image: 'redis:7.0'
 global_job_config:
   prologue:
     commands:
       - checkout
-      - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json)
       - npm install
-      - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json) node_modules
 blocks:
   - name: "\U0001F50D Lint & Code Quality"
     task:
       jobs:
         - name: ESLint
           commands:
-            - 'if npm run | grep -q "lint"; then npm run lint; elif npm run | grep -q "eslint"; then npm run eslint; else echo "No lint script found, installing and running eslint directly"; npm install eslint --no-save && npx eslint . --max-warnings=0 || true; fi'
-            - echo "Linting step completed"
+            - npm run lint
   - name: "\U0001F512 Security Scan"
     task:
       jobs:
@@ -46,36 +31,26 @@ blocks:
             - npm audit --production
         - name: Node Security Checks
           commands:
-            - echo "Running additional security checks..."
-            - npm list | grep -i "deprecated" || echo "No deprecated packages found"
-            - npm outdated || echo "Package status checked"
-            - echo "Security scan completed"DependencyCheck/releases/download/v7.4.4/dependency-check-7.4.4-release.zip
-            - unzip -q /tmp/dependency-check.zip -d /tmp/dependency-check
-            - /tmp/dependency-check/dependency-check/bin/dependency-check.sh --scan . --out /tmp/dependency-check-report.html --format HTML || true
-            - echo "Dependency check completed. Full report saved to /tmp/dependency-check-report.html"
+            - npm list | grep -i "deprecated"
+            - npm outdated
   - name: "\U0001F9EA Tests in Parallel"
     task:
       jobs:
         - name: Core Tests
           commands:
-            - 'if npm run | grep -q "test"; then npm run test; elif npm run | grep -q "mocha"; then npm run mocha; else echo "No test script found, attempting to run tests directly"; npm test || true; fi'
-            - echo "Core tests completed"
+            - npm test
         - name: API Tests
           commands:
-            - 'if npm run | grep -q "test:api"; then npm run test:api; elif npm run | grep -q "test-api"; then npm run test-api; else echo "No API test script found, skipping"; fi'
-            - echo "API tests step completed"
+            - 'npm run test:api'
         - name: Integration Tests
           commands:
-            - 'if npm run | grep -q "test:integration"; then npm run test:integration; elif npm run | grep -q "test-integration"; then npm run test-integration; else echo "No integration test script found, skipping"; fi'
-            - echo "Integration tests step completed"
+            - 'npm run test:integration'
         - name: E2E Tests
           commands:
-            - 'if npm run | grep -q "test:e2e"; then npm run test:e2e; elif npm run | grep -q "test-e2e"; then npm run test-e2e; else echo "No E2E test script found, skipping"; fi'
-            - echo "E2E tests step completed"
+            - 'npm run test:e2e'
   - name: "\U0001F4DD Documentation"
     task:
       jobs:
         - name: Generate Docs
           commands:
             - 'if npm run | grep -q "docs"; then npm run docs; elif npm run | grep -q "doc"; then npm run doc; else echo "No docs script found, skipping documentation generation"; fi'
-            - echo "Documentation step completed"
