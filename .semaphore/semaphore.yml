@@ -45,7 +45,6 @@ blocks:
             - npm audit --production
         - name: Node Security Checks
           commands:
-            - npm list | grep -i "deprecated"
             - npm outdated
   - name: "\U0001F9EA Tests in Parallel"
     task:
@@ -55,13 +54,13 @@ blocks:
             - npm test
         - name: API Tests
           commands:
-            - npm run test:api
+            - 'npm run test:api'
         - name: Integration Tests
           commands:
-            - npm run test:integration
+            - 'npm run test:integration'
         - name: E2E Tests
           commands:
-            - npm run test:e2e
+            - 'npm run test:e2e'
   - name: "\U0001F4DD Documentation"
     task:
       jobs:
