@@ -57,7 +57,8 @@ blocks:
       jobs:
         - name: Benchmarks
           commands:
-            - npm run benchmark
+            - echo "Running custom benchmark"
+            - node benchmark/index.js
   - name: "\U0001F4DD Documentation"
     task:
       jobs:
