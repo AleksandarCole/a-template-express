@@ -6,7 +6,7 @@ agent:
     os_image: ''
   containers:
     - name: main
-      image: 'node:18-alpine'
+      image: 'node:18'
     - name: postgres
       image: 'postgres:15'
     - name: redis
