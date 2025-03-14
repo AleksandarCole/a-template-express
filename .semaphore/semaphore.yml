@@ -7,15 +7,29 @@ agent:
   containers:
     - name: main
       image: 'node:18'
+      env_vars:
+        - name: NODE_ENV
+          value: test
+        - name: REDIS_URL
+          value: 'redis://redis:6379'
+        - name: DATABASE_URL
+          value: 'postgres://postgres:postgres@postgres:5432/app_test'
     - name: postgres
       image: 'postgres:15'
+      env_vars:
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_DB
+          value: app_test
     - name: redis
       image: 'redis:7.0'
 global_job_config:
   prologue:
     commands:
       - checkout
+      - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json)
       - npm install
+      - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json) node_modules
 blocks:
   - name: "\U0001F50D Lint & Code Quality"
     task:
@@ -41,16 +55,17 @@ blocks:
             - npm test
         - name: API Tests
           commands:
-            - 'npm run test:api'
+            - npm run test:api
         - name: Integration Tests
           commands:
-            - 'npm run test:integration'
+            - npm run test:integration
         - name: E2E Tests
           commands:
-            - 'npm run test:e2e'
+            - npm run test:e2e
   - name: "\U0001F4DD Documentation"
     task:
       jobs:
         - name: Generate Docs
           commands:
             - 'if npm run | grep -q "docs"; then npm run docs; elif npm run | grep -q "doc"; then npm run doc; else echo "No docs script found, skipping documentation generation"; fi'
+            - echo "Documentation step completed"
