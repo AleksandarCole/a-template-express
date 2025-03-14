@@ -7,19 +7,26 @@ agent:
   containers:
     - name: main
       image: 'node:18'
+      env_vars:
+        - name: NODE_ENV
+          value: test
+        - name: REDIS_URL
+          value: 'redis://redis:6379'
+        - name: DATABASE_URL
+          value: 'postgres://postgres:postgres@postgres:5432/app_test'
     - name: postgres
       image: 'postgres:15'
+      env_vars:
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_DB
+          value: app_test
     - name: redis
       image: 'redis:7.0'
 global_job_config:
   prologue:
     commands:
       - checkout
-      - export NODE_ENV=test
-      - 'export REDIS_URL=redis://redis:6379'
-      - 'export DATABASE_URL=postgres://postgres:postgres@postgres:5432/app_test'
-      - export POSTGRES_PASSWORD=postgres
-      - export POSTGRES_DB=app_test
       - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json)
       - npm ci
       - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json) node_modules
