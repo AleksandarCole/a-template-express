@@ -28,7 +28,7 @@ global_job_config:
     commands:
       - checkout
       - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json)
-      - npm ci
+      - npm install
       - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json) node_modules
 blocks:
   - name: "\U0001F50D Lint & Code Quality"
