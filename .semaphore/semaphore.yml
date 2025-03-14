@@ -57,7 +57,7 @@ blocks:
       jobs:
         - name: Benchmarks
           commands:
-            - npm run bench
+            - npm run benchmark
   - name: "\U0001F4DD Documentation"
     task:
       jobs:
