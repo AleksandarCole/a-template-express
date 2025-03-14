@@ -14,7 +14,6 @@ agent:
 global_job_config:
   prologue:
     commands:
-      - cd /home/semaphore
       - checkout
       - export NODE_ENV=test
       - 'export REDIS_URL=redis://redis:6379'
