@@ -1,0 +1,68 @@
+version: v1.0
+name: Node.js Pipeline
+agent:
+  machine:
+    type: s1-kubernetes
+    os_image: ''
+  containers:
+    - name: main
+      image: 'node:18-alpine'
+    - name: postgres
+      image: 'postgres:15'
+      env_vars:
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_DB
+          value: app_test
+    - name: redis
+      image: 'redis:7.0'
+env_vars:
+  - name: NODE_ENV
+    value: test
+  - name: REDIS_URL
+    value: 'redis://redis:6379'
+  - name: DATABASE_URL
+    value: 'postgres://postgres:postgres@postgres:5432/app_test'
+global_job_config:
+  prologue:
+    commands:
+      - cd /home/semaphore
+      - checkout
+      - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json)
+      - npm ci
+      - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json) node_modules
+blocks:
+  - name: "\U0001F50D Lint & Code Quality"
+    task:
+      jobs:
+        - name: ESLint
+          commands:
+            - npm run lint
+  - name: "\U0001F9EA Tests in Parallel"
+    task:
+      jobs:
+        - name: Core Tests
+          commands:
+            - npm run test
+        - name: Acceptance Tests
+          commands:
+            - TEST_GREP="acceptance" npm run test
+        - name: Router Tests
+          commands:
+            - TEST_GREP="Router" npm run test
+        - name: Request Tests
+          commands:
+            - TEST_GREP="req" npm run test
+  - name: "\U0001F9E9 Additional Testing"
+    task:
+      jobs:
+        - name: Benchmarks
+          commands:
+            - npm run bench
+  - name: "\U0001F4DD Documentation"
+    task:
+      jobs:
+        - name: Generate Docs
+          commands:
+            - npm run docs
+            - echo "Documentation generated successfully."
