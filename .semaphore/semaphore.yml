@@ -9,6 +9,13 @@ agent:
       image: 'node:18'
     - name: postgres
       image: 'postgres:15'
+      env_vars:
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_DB
+          value: app_test
     - name: redis
       image: 'redis:7.0'
 global_job_config:
