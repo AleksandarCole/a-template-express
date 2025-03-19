@@ -1,5 +1,5 @@
 version: v1.0
-name: Node.js Pipeline
+name: "\U0001F4AB Elixir Insight ETL - CI Pipeline"
 agent:
   machine:
     type: s1-kubernetes
@@ -7,29 +7,15 @@ agent:
   containers:
     - name: main
       image: 'node:18'
-      env_vars:
-        - name: NODE_ENV
-          value: test
-        - name: REDIS_URL
-          value: 'redis://redis:6379'
-        - name: DATABASE_URL
-          value: 'postgres://postgres:postgres@postgres:5432/app_test'
     - name: postgres
       image: 'postgres:15'
-      env_vars:
-        - name: POSTGRES_PASSWORD
-          value: postgres
-        - name: POSTGRES_DB
-          value: app_test
     - name: redis
       image: 'redis:7.0'
 global_job_config:
   prologue:
     commands:
       - checkout
-      - cache restore node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json)
       - npm install
-      - cache store node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum package.json) node_modules
 blocks:
   - name: "\U0001F50D Lint & Code Quality"
     task:
@@ -45,7 +31,8 @@ blocks:
             - npm audit --production
         - name: Node Security Checks
           commands:
-            - echo "npm outdated"
+            - npm list | grep -i "deprecated" || true
+            - npm outdated || true
   - name: "\U0001F9EA Tests in Parallel"
     task:
       jobs:
@@ -67,4 +54,3 @@ blocks:
         - name: Generate Docs
           commands:
             - 'if npm run | grep -q "docs"; then npm run docs; elif npm run | grep -q "doc"; then npm run doc; else echo "No docs script found, skipping documentation generation"; fi'
-            - echo "Documentation step completed"
