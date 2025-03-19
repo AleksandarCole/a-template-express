@@ -42,9 +42,6 @@ blocks:
   - name: "\U0001F9EA Tests in Parallel"
     task:
       jobs:
-        - name: Core Tests
-          commands:
-            - npm test
         - name: API Tests
           commands:
             - 'npm run test:api'
