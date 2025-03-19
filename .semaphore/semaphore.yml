@@ -36,10 +36,9 @@ blocks:
         - name: NPM Audit
           commands:
             - npm audit --production
-        - name: Node Security Checks
+        - name: Node Check Outdated
           commands:
-            - npm list | grep -i "deprecated" || true
-            - npm outdated || true
+            - npm outdated
   - name: "\U0001F9EA Tests in Parallel"
     task:
       jobs:
